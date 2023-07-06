@@ -1,35 +1,34 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-async function saveTextContentToFile(url, selector, filePath) {
-  const browser = await puppeteer.launch({ headless: 'new' });
+async function getImageLinks() {
+  const browser = await puppeteer.launch({headless:'new'});
   const page = await browser.newPage();
 
-  // Navigate to the specified URL
-  await page.goto(url);
+  // Navigate to the website
+  await page.goto('https://unsplash.com/');
 
-  // Wait for the elements to be available in the DOM
-  await page.waitForSelector(selector);
+  // Wait for images to load
+  await page.waitForSelector('img');
 
-  // Get the text content of the elements
-  const textContents = await page.$$eval(selector, (elements) =>
-    elements.map((element) => element.textContent)
-  );
+  // Extract image links with unique IDs
+  const imageLinks = await page.evaluate(() => {
+    const links = Array.from(document.querySelectorAll('img'));
+    return links.map((link, index) => ({
+      id: `image${index + 1}`,
+      src: link.src
+    }));
+  });
 
-  // Save the text contents to a file with each content on a new line
-  fs.writeFileSync(filePath, textContents.join('\n'), 'utf-8');
+  // Save image links to a JSON file
+  fs.writeFile('imageLinks.json', JSON.stringify(imageLinks, null, 2), err => {
+    if (err) throw err;
+    console.log('Image links saved to imageLinks.json');
+  });
 
   await browser.close();
 }
 
-// Usage example
-const url = 'https://example.cypress.io/todo';
-const elementSelector = '.todo-list li'; // Assuming each todo item is wrapped in an <li> element
-const filePath = 'todo.txt';
+getImageLinks();
 
-saveTextContentToFile(url, elementSelector, filePath)
-  .then(() => console.log(`Text contents saved to ${filePath} successfully!`))
-  .catch((error) => console.error('Error while saving the text contents:', error));
-
-
-  // git push origin read_text_content
+  // git push origin get_images_link
