@@ -32,4 +32,4 @@ saveTextContentToFile(url, elementSelector, filePath)
   .catch((error) => console.error('Error while saving the text contents:', error));
 
 
-  // git push origin graph_text_content
+  // git push origin read_text_content
