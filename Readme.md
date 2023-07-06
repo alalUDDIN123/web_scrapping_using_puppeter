@@ -1,61 +1,50 @@
-# Screenshot taking utility using `Puppeteer`
+# Save Text Content to File using Puppeteer
 
-This readme provides an overview and usage instructions for the code snippet provided, which uses Puppeteer to capture a screenshot of a web page.
+This script utilizes Puppeteer, a Node.js library, to save the text content of specified elements from a web page to a file. It automates browser actions, navigates to the desired URL, extracts the text content of the selected elements, and saves it to a specified file path.
 
-## Dependencies
+## How It Works
 
-This code snippet requires the following dependency:
+The main code responsible for saving the text content to a file is as follows:
 
-- [Puppeteer](https://www.npmjs.com/package/puppeteer): A Node.js library that provides a high-level API to control a headless Chrome or Chromium browser.
+```javascript
+const puppeteer = require('puppeteer');
+const fs = require('fs');
 
-You can install the required dependencies using npm:
+async function saveTextContentToFile(url, selector, filePath) {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
 
-```bash
-npm install puppeteer
+  // Navigate to the specified URL
+  await page.goto(url);
+
+  // Wait for the elements to be available in the DOM
+  await page.waitForSelector(selector);
+
+  // Get the text content of the elements
+  const textContents = await page.$$eval(selector, (elements) =>
+    elements.map((element) => element.textContent)
+  );
+
+  // Save the text contents to a file with each content on a new line
+  fs.writeFileSync(filePath, textContents.join('\n'), 'utf-8');
+
+  await browser.close();
+}
+
+// Usage example
+const url = 'https://example.com';
+const elementSelector = '.content';
+const filePath = 'text-content.txt';
+
+saveTextContentToFile(url, elementSelector, filePath)
+  .then(() => console.log('Text content saved successfully!'))
+  .catch((error) => console.error('Error while saving the text content:', error));
 ```
 
-## Usage
+In this code, the `saveTextContentToFile` function takes three parameters: `url` (the URL of the web page), `selector` (the CSS selector of the elements containing the desired text content), and `filePath` (the path to the file where the text content will be saved).
 
-To use the `takeScreenshot` function, follow these steps:
+The function launches a Puppeteer browser, navigates to the specified URL, waits for the elements to be available in the DOM, and retrieves the text content of the elements using `$$eval`. It then saves the text contents to the specified file using `fs.writeFileSync`, with each content on a new line.
 
-1. Import the required module:
+To use the script, modify the `url`, `elementSelector`, and `filePath` variables as needed, and then run the code using Node.js.
 
-   ```javascript
-   const puppeteer = require('puppeteer');
-   ```
-
-2. Define the `takeScreenshot` function:
-
-   ```javascript
-   async function takeScreenshot(url, outputPath) {
-     const browser = await puppeteer.launch({ headless: "new" }); // Launch the server
-     const page = await browser.newPage(); // Open a new tab
-     
-     await page.goto(url); // Go to the specified URL
-     await page.screenshot({ path: outputPath }); // Take a screenshot
-     
-     await browser.close(); // Close the browser once the screenshot is taken
-   }
-   ```
-
-3. Set the webpage URL and the path where you want to save the screenshot:
-
-   ```javascript
-   const webpageUrl = 'https://example.com'; // Replace with the desired URL
-   const screenshotPath = 'screenshot.png'; // Replace with the desired screenshot name and path
-   ```
-
-4. Call the `takeScreenshot` function:
-
-   ```javascript
-   takeScreenshot(webpageUrl, screenshotPath)
-     .then(() => console.log('Screenshot taken successfully!'))
-     .catch((error) => console.error('Error while taking screenshot:', error));
-   ```
-
-   The function returns a promise that resolves when the screenshot is taken successfully. You can handle the success and error cases accordingly.
-
-Make sure you have the necessary permissions to write to the specified output path.
-
-Note: The `headless` option in `puppeteer.launch` is set to `"new"`, which means the browser will be launched in headless mode. You can modify this option as per your requirements.
-
+---
