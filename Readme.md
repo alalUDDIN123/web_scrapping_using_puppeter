@@ -1,19 +1,35 @@
-# Image Link Retrieval using Puppeteer
+## Image Downloader
 
-This script utilizes Puppeteer, a Node.js library, to retrieve image links from a specified website. The image links, along with unique IDs, are then saved to a JSON file.
+1. It imports the required modules: `puppeteer`, `fs` (File System), and `path`.
 
-## How It Works
+2. The `downloadImages` function is defined as an asynchronous function, allowing the use of `await` to handle asynchronous operations.
 
-1. The script launches a headless Chromium browser instance using Puppeteer.
-2. A new page is created within the browser.
-3. The script navigates to the specified website URL.
-4. It waits for the images on the page to finish loading.
-5. Using JavaScript's DOM manipulation capabilities, the script queries all `img` elements on the page to extract the image links.
-6. For each image link found, an object is created with a unique ID and the corresponding image source URL.
-7. The image link objects are stored in an array.
-8. The script saves the array of image link objects to a JSON file named `imageLinks.json` using the `fs.writeFile` function.
-9. Finally, the browser instance is closed.
+3. The script launches a headless browser using `puppeteer.launch()`, which creates an instance of the Chromium browser.
 
-The script essentially automates the process of navigating to a website, extracting the image links, and saving them to a JSON file. By leveraging Puppeteer's capabilities, it interacts with the browser and the website's DOM to retrieve the necessary information.
+4. A new page is created with `browser.newPage()`.
 
-`git push origin get_images_link`
+5. The script navigates to the specified website URL using `page.goto()`. In this case, it visits `https://unsplash.com/`.
+
+6. The script waits for the images to load on the page using `page.waitForSelector()`. It ensures that the `<img>` elements are present in the DOM.
+
+7. The image links are extracted from the page using `page.evaluate()`. It uses `document.querySelectorAll('img')` to select all `<img>` elements and maps them to an array of objects containing unique IDs (`id`) and image source URLs (`src`).
+
+8. A directory is created to store the downloaded images using `fs.mkdirSync()`. The `path.join()` function is used to construct the directory path.
+
+9. The script loops through each image in `imageLinks`.
+
+10. For each image, it retrieves the image source URL (`imageUrl`), unique ID (`imageId`), and desired image extension (`imageExtension`). The extension is specified as `.jpg` in this code, but you can change it to your desired extension.
+
+11. The script downloads the image by sending a GET request to the `imageUrl` using `page.goto()`. The response is captured using `response.buffer()` to obtain the image data as a buffer.
+
+12. The downloaded image data is then saved to a file using `fs.writeFileSync()`. The file path is constructed using `path.join()` and includes the directory path, image ID, and image extension.
+
+13. After downloading and saving all the images, the browser instance is closed using `browser.close()`.
+
+14. Finally, a success message is logged to the console using `console.log()`.
+
+To execute the code, call the `downloadImages()` function. It will launch the browser, navigate to the website, download the images, save them locally, and display a success message.
+
+Note: Make sure to have Puppeteer and its dependencies installed in your project. You can install it via npm with the command: `npm install puppeteer`.
+---
+`git push origin get_images_and_download`
